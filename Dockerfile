@@ -45,7 +45,7 @@ RUN set -euo pipefail; \
     zypper -n clean; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
-FROM build AS build-k8s-codegen
+FROM build AS build-k8s-codegen:latest
 ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
