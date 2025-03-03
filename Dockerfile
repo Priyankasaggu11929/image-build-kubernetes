@@ -57,4 +57,4 @@ COPY kubernetes-1.32.0.tar.gz .
 RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-RUN pwd && ls && git branch && git branch -r && git tag --list && git checkout origin/v1.32.0
+RUN pwd && ls && git branch && git branch -r && git tag --list && git checkout v1.32.0
