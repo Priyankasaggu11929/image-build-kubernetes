@@ -58,7 +58,7 @@ RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kub
 WORKDIR ${GOPATH}/src/kubernetes
 
 
-RUN pwd && ls && git branch && git branch -r && git tag --list && git fsck
+#RUN pwd && ls && git branch && git branch -r && git tag --list
 
 # force code generation
 RUN make WHAT=cmd/kube-apiserver
