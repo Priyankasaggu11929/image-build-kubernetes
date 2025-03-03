@@ -51,7 +51,7 @@ ARG TAG=v1.32.2-rke2r1-build20250213
 COPY ./scripts/semver-parse.sh /semver-parse.sh
 RUN chmod +x /semver-parse.sh
 
-RUN echo $(/semver-parse.sh ${TAG} all) && printenv
+RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 
 COPY kubernetes-1.32.0.tar.gz .
 RUN tar -xvzf kubernetes-1.32.0.tar.gz -C ${GOPATH}/src/kubernetes
