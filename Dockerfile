@@ -88,3 +88,4 @@ RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=ve
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
 
+FROM build AS build-k8s
