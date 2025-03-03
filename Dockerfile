@@ -46,7 +46,15 @@ RUN set -euo pipefail; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
 FROM build AS build-k8s-codegen
-ARG TAG=v1.32.2
+ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
 RUN chmod +x /semver-parse.sh
+
+RUN echo $(/semver-parse.sh ${TAG} all)
+
+#RUN git clone -b $(/semver-parse.sh ${TAG} all) --depth=1 -- https://github.com/kubernetes/kubernetes.git ${GOPATH}/src/kubernetes
+#WORKDIR ${GOPATH}/src/kubernetes
+
+# COPY etcd-3.5.16.tar.gz .
+# RUN tar -xvzf etcd-3.5.16.tar.gz && tar -xvzf vendor.tar.gz 
