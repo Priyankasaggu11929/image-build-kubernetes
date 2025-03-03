@@ -61,6 +61,7 @@ WORKDIR ${GOPATH}/src/kubernetes
 #RUN pwd && ls && git branch && git branch -r && git tag --list
 
 # force code generation
+ENV KUBE_GIT_TREE_STATE=clean
 RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/go/bin/go-build-static-k8s.sh
