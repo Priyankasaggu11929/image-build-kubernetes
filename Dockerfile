@@ -86,3 +86,12 @@ RUN echo "export GO_LDFLAGS=\"-linkmode=external \
 RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo ${@}' \
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
+
+FROM build-k8s-codegen AS build-k8s
+
+# ARG TARGETARCH=amd64
+RUN if [ "$(uname -m)" == "x86_64" ]; then export TARGETARCH="amd64"; elif [ "$(uname -m)" == "aarch64" ]; then export TARGETARCH="arm64"; fi
+ARG K3S_ROOT_VERSION=v0.14.1
+RUN curl --output-dir  /opt/k3s-root/k3s-root.tar -O -L https://github.com/k3s-io/k3s-root/releases/download/${K3S_ROOT_VERSION}/k3s-root-${TARGETARCH}.tar
+RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
+RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
