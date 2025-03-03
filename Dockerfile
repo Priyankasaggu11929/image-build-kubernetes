@@ -47,3 +47,6 @@ RUN set -euo pipefail; \
 
 FROM build AS build-k8s-codegen
 ARG TAG=v1.32.2
+
+COPY ./scripts/semver-parse.sh /semver-parse.sh
+RUN chmod +x /semver-parse.sh
