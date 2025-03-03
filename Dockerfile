@@ -64,11 +64,11 @@ WORKDIR ${GOPATH}/src/kubernetes
 ENV KUBE_GIT_TREE_STATE=clean
 RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
-RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/go/bin/go-build-static-k8s.sh
-RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/go/bin/go-build-static-k8s.sh
-RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/go/bin/go-build-static-k8s.sh
-RUN echo "export KUBERNETES_VERSION=$(/semver-parse.sh ${TAG} k8s)" >> /usr/local/go/bin/go-build-static-k8s.sh
-RUN echo "export BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export KUBERNETES_VERSION=$(/semver-parse.sh ${TAG} k8s)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export GO_LDFLAGS=\"-linkmode=external \
     -X k8s.io/component-base/version.gitVersion=\${KUBERNETES_VERSION} \
     -X k8s.io/component-base/version.gitMajor=\${MAJOR} \
@@ -82,7 +82,7 @@ RUN echo "export GO_LDFLAGS=\"-linkmode=external \
     -X k8s.io/client-go/pkg/version.gitCommit=\${GIT_COMMIT} \
     -X k8s.io/client-go/pkg/version.gitTreeState=clean \
     -X k8s.io/client-go/pkg/version.buildDate=\${BUILD_DATE} \
-    \"" >> /usr/local/go/bin/go-build-static-k8s.sh
+    \"" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo ${@}' \
-    >> /usr/local/go/bin/go-build-static-k8s.sh
-RUN chmod -v +x /usr/local/go/bin/go-*.sh
+    >> /usr/local/bin/go-build-static-k8s.sh
+RUN chmod -v +x /usr/local/bin/go-*.sh
