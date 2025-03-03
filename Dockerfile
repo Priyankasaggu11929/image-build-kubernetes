@@ -53,8 +53,12 @@ RUN chmod +x /semver-parse.sh
 
 RUN echo $(/semver-parse.sh ${TAG} all)
 
+COPY kubernetes-1.32.0.tar.gz .
+RUN tar -xvzf kubernetes-1.32.0.tar.gz -C ${GOPATH}/src/kubernetes
+WORKDIR ${GOPATH}/src/kubernetes
+
 #RUN git clone -b $(/semver-parse.sh ${TAG} all) --depth=1 -- https://github.com/kubernetes/kubernetes.git ${GOPATH}/src/kubernetes
-#WORKDIR ${GOPATH}/src/kubernetes
+
 
 # COPY etcd-3.5.16.tar.gz .
 # RUN tar -xvzf etcd-3.5.16.tar.gz && tar -xvzf vendor.tar.gz 
