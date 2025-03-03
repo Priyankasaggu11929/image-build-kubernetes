@@ -57,4 +57,4 @@ COPY kubernetes-1.32.0.tar.gz .
 RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-RUN pwd && ls && git branch
+RUN pwd && ls && git branch && git checkout -b $(/semver-parse.sh ${TAG} all) && git branch && git tag --list
