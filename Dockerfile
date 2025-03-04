@@ -64,15 +64,11 @@ WORKDIR ${GOPATH}/src/kubernetes
 
 # force code generation
 
-RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") && \
-    echo "KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT" >> /etc/environment
+RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")
 
-RUN KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) && \
-    echo "KUBE_GIT_VERSION=$KUBE_GIT_VERSION" >> /etc/environment
+RUN export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)
 
-ENV KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT \
-    KUBE_GIT_VERSION=$KUBE_GIT_VERSION \
-    KUBE_GIT_TREE_STATE="clean"
+RUN KUBE_GIT_TREE_STATE="clean"
 
 RUN printenv
 
