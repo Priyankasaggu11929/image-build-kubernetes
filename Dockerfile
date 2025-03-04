@@ -45,6 +45,44 @@ RUN set -euo pipefail; \
     zypper -n clean; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
+
+FROM build AS build-k8s-codegen
+ARG TAG
+
+COPY ./scripts/semver-parse.sh /semver-parse.sh
+RUN chmod +x /semver-parse.sh
+
+RUN echo $(/semver-parse.sh ${TAG} all)
+RUN git clone -b $(/semver-parse.sh ${TAG} all) --depth=1 -- https://github.com/kubernetes/kubernetes.git ${GOPATH}/src/kubernetes
+WORKDIR ${GOPATH}/src/kubernetes
+
+# force code generation
+RUN make WHAT=cmd/kube-apiserver
+# build statically linked executables 
+RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export KUBERNETES_VERSION=$(/semver-parse.sh ${TAG} k8s)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo "export GO_LDFLAGS=\"-linkmode=external \
+    -X k8s.io/component-base/version.gitVersion=\${KUBERNETES_VERSION} \
+    -X k8s.io/component-base/version.gitMajor=\${MAJOR} \
+    -X k8s.io/component-base/version.gitMinor=\${MINOR} \
+    -X k8s.io/component-base/version.gitCommit=\${GIT_COMMIT} \
+    -X k8s.io/component-base/version.gitTreeState=clean \
+    -X k8s.io/component-base/version.buildDate=\${BUILD_DATE} \
+    -X k8s.io/client-go/pkg/version.gitVersion=\${KUBERNETES_VERSION} \
+    -X k8s.io/client-go/pkg/version.gitMajor=\${MAJOR} \
+    -X k8s.io/client-go/pkg/version.gitMinor=\${MINOR} \
+    -X k8s.io/client-go/pkg/version.gitCommit=\${GIT_COMMIT} \
+    -X k8s.io/client-go/pkg/version.gitTreeState=clean \
+    -X k8s.io/client-go/pkg/version.buildDate=\${BUILD_DATE} \
+    \"" >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo ${@}' \
+    >> /usr/local/go/bin/go-build-static-k8s.sh
+RUN chmod -v +x /usr/local/go/bin/go-*.sh
+
+
 FROM build AS build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
 
@@ -62,15 +100,6 @@ WORKDIR ${GOPATH}/src/kubernetes
 RUN pwd && ls -la && git branch && git branch -r && git tag --list
 
 # force code generation
-RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") && \
-    echo "KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT" >> /etc/environment
-
-RUN KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) && \
-    echo "KUBE_GIT_VERSION=$KUBE_GIT_VERSION" >> /etc/environment
-
-ENV KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT \
-    KUBE_GIT_VERSION=$KUBE_GIT_VERSION \
-    KUBE_GIT_TREE_STATE="clean"
 
 RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
