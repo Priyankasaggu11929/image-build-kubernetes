@@ -64,15 +64,12 @@ WORKDIR ${GOPATH}/src/kubernetes
 
 # force code generation
 
-RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")
+RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") \
+    export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) \
+    export KUBE_GIT_TREE_STATE="clean" \
+    printenv \
+    make WHAT=cmd/kube-apiserver
 
-RUN export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)
-
-RUN KUBE_GIT_TREE_STATE="clean"
-
-RUN printenv
-
-RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
