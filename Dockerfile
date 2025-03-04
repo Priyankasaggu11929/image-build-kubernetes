@@ -53,10 +53,12 @@ RUN chmod +x /semver-parse.sh
 
 RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 
-COPY kubernetes-1.32.0.tar.gz .
-RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
+# COPY kubernetes-1.32.0.tar.gz .
+COPY kubernetes-1.32.0  ${GOPATH}/src/kubernetes
+# RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
+RUN pwd && ls
 
 #RUN pwd && ls && git branch && git branch -r && git tag --list
 
