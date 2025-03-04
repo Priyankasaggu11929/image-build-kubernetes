@@ -60,9 +60,21 @@ COPY kubernetes.obsinfo ${GOPATH}/src/kubernetes/
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-RUN pwd && ls -la && git branch && git branch -r && git tag --list
+# RUN pwd && ls -la && git branch && git branch -r && git tag --list
 
 # force code generation
+
+RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") && \
+    echo "KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT" >> /etc/environment
+
+RUN KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) && \
+    echo "KUBE_GIT_VERSION=$KUBE_GIT_VERSION" >> /etc/environment
+
+ENV KUBE_GIT_COMMIT=$KUBE_GIT_COMMIT \
+    KUBE_GIT_VERSION=$KUBE_GIT_VERSION \
+    KUBE_GIT_TREE_STATE="clean"
+
+RUN printenv
 
 RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
