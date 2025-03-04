@@ -74,8 +74,8 @@ RUN cat kubernetes.obsinfo
 RUN grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " "
 
 # build statically linked executables 
-RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") \
-    echo "export KUBE_GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh \
+RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " "); \
+    echo "export KUBE_GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh; \
     echo "export GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo 'export KUBE_GIT_TREE_STATE="clean"' >> /usr/local/bin/go-build-static-k8s.sh
