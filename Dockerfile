@@ -75,7 +75,7 @@ RUN echo "export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)" >> /usr/local/
 RUN echo 'export KUBE_GIT_TREE_STATE="clean"' >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo 'export GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")' >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export KUBERNETES_VERSION=$(/semver-parse.sh ${TAG} k8s)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export GO_LDFLAGS=\"-linkmode=external \
