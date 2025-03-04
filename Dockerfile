@@ -51,26 +51,19 @@ ARG TAG=v1.32.2-rke2r1-build20250213
 COPY ./scripts/semver-parse.sh /semver-parse.sh
 RUN chmod +x /semver-parse.sh
 
-COPY kubernetes.obsinfo .
-
-# This is fixing bug bsc#1065972
-RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")
-# KUBE_GIT_TREE_STATE="clean" indicates no changes since the git commit id
-# KUBE_GIT_TREE_STATE="dirty" indicates source code changes after the git commit id
-RUN export KUBE_GIT_TREE_STATE="clean"
-RUN export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)}
-
 RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 
 # COPY kubernetes-1.32.0.tar.gz .
-COPY kubernetes-1.32.0  ${GOPATH}/src/kubernetes
+COPY kubernetes-1.32.0 kubernetes.obsinfo ${GOPATH}/src/kubernetes
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
 #RUN pwd && ls && git branch && git branch -r && git tag --list
 
 # force code generation
-
+ENV KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")
+ENV KUBE_GIT_TREE_STATE="clean"
+ENV KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)}
 RUN make WHAT=cmd/kube-apiserver
 # build statically linked executables 
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
