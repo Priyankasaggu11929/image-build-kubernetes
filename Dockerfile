@@ -70,9 +70,9 @@ RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 
     make WHAT=cmd/kube-apiserver
 
 # build statically linked executables 
-RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") >> /usr/local/bin/go-build-static-k8s.sh
-RUN export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) >> /usr/local/bin/go-build-static-k8s.sh
-RUN export KUBE_GIT_TREE_STATE="clean" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo 'export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ")' >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo 'export KUBE_GIT_TREE_STATE="clean"' >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/bin/go-build-static-k8s.sh
