@@ -95,6 +95,8 @@ ARG K3S_ROOT_VERSION=v0.14.1
 # ARG TARGETARCH=amd64
 RUN if [ "$(uname -m)" == "x86_64" ]; then export TARGETARCH="amd64"; elif [ "$(uname -m)" == "aarch64" ]; then export TARGETARCH="arm64"; fi
 
+RUN curl --output-dir /opt/k3s-root/k3s-root.tar -O -L https://github.com/k3s-io/k3s-root/releases/download/v0.14.1/k3s-root-amd64.tar
+
 #!RemoteAssetUrl: https://github.com/k3s-io/k3s-root/releases/download/v0.14.1/k3s-root-amd64.tar
 COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root.tar
 
