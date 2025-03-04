@@ -69,6 +69,10 @@ RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 
     printenv \
     make WHAT=cmd/kube-apiserver
 
+RUN cat kubernetes.obsinfo
+
+RUN grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " "
+
 # build statically linked executables 
 RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") \
     echo "export KUBE_GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh \
