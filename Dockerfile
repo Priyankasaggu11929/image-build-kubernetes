@@ -117,9 +117,12 @@ COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root.tar
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
 
-RUN echo "do I reach here? YES!"
+
 
 RUN go-build-static-k8s.sh -o bin/kube-apiserver          ./cmd/kube-apiserver
+
+RUN echo "do I reach here? Double YES!"
+
 RUN go-build-static-k8s.sh -o bin/kube-controller-manager ./cmd/kube-controller-manager
 RUN go-build-static-k8s.sh -o bin/kube-scheduler          ./cmd/kube-scheduler
 RUN go-build-static-k8s.sh -o bin/kube-proxy              ./cmd/kube-proxy
