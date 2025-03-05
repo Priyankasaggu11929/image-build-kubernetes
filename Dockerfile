@@ -55,7 +55,6 @@ RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 
 # COPY kubernetes-1.32.0.tar.gz .
 COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
-COPY kubernetes.obsinfo ${GOPATH}/src/kubernetes/
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
@@ -63,24 +62,19 @@ RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git ta
 
 # force code generation
 
-RUN export KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " ") \
+RUN export export KUBE_GIT_COMMIT=$(git rev-parse HEAD) \
     export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) \
     export KUBE_GIT_TREE_STATE="clean" \
     printenv \
     make WHAT=cmd/kube-apiserver
 
-RUN cat kubernetes.obsinfo
-
-RUN grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " "
-
 # build statically linked executables 
-RUN KUBE_GIT_COMMIT=$(grep "commit:" kubernetes.obsinfo | cut -d ":" -f2 | tr -d " "); \
-    echo "export KUBE_GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh; \
-    echo "export GIT_COMMIT=${KUBE_GIT_COMMIT}" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export KUBE_GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/go/bin/go-build-static-k8s.sh
 RUN echo "export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo 'export KUBE_GIT_TREE_STATE="clean"' >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
+RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/go/bin/go-build-static-k8s.sh
 RUN echo "export KUBERNETES_VERSION=$(/semver-parse.sh ${TAG} k8s)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN cat /usr/local/bin/go-build-static-k8s.sh
@@ -117,7 +111,7 @@ COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root.tar
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
 
-
+RUN echo "do I reach here? YES!"
 
 RUN go-build-static-k8s.sh -o bin/kube-apiserver          ./cmd/kube-apiserver
 
