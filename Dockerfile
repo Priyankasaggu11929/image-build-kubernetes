@@ -59,7 +59,7 @@ COPY kubernetes.obsinfo ${GOPATH}/src/kubernetes/
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-# RUN pwd && ls -la && git branch && git branch -r && git tag --list
+# RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
 
 # force code generation
 
