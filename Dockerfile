@@ -24,7 +24,7 @@ ARG GO_IMAGE=rancher/image-build-base:latest
 
 
 FROM ${BCI_IMAGE} as bci
-FROM ${GO_IMAGE} as build
+FROM ${GO_IMAGE} as build:latest
 RUN set -euo pipefail; \
     zypper -n install --no-recommends \
     # bash \
@@ -47,7 +47,7 @@ RUN set -euo pipefail; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
 
-FROM build as build-k8s-codegen
+FROM build:latest as build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
