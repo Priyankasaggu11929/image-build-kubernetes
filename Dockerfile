@@ -31,6 +31,7 @@ RUN set -euo pipefail; \
     # binutils-gold (available in leap, but conflicts with binutils, will check if really needed, then add) \ 
     # libc6-compat (this package as I learnt, is to provide the necessary runtime libraries to make glibc-dependent programs work on Alpine, so might not be needed on sle based images?) \
     glibc \
+    glibc-devel-static \
     #curl \
     #file \
     #git \
