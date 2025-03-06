@@ -47,7 +47,7 @@ RUN set -euo pipefail; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
 
-FROM build AS build-k8s-codegen
+FROM build as build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
@@ -60,20 +60,16 @@ COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
+# RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
 
 # force code generation
 
 RUN export export KUBE_GIT_COMMIT=$(git rev-parse HEAD) \
     export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all) \
     export KUBE_GIT_TREE_STATE="clean" \
-    printenv \
     make WHAT=cmd/kube-apiserver
 
-# build statically linked executables 
-RUN echo "export KUBE_GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo "export KUBE_GIT_VERSION=$(/semver-parse.sh ${TAG} all)" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo 'export KUBE_GIT_TREE_STATE="clean"' >> /usr/local/bin/go-build-static-k8s.sh
+# build statically linked executables
 RUN echo "export MAJOR=$(/semver-parse.sh ${TAG} major)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export MINOR=$(/semver-parse.sh ${TAG} minor)" >> /usr/local/bin/go-build-static-k8s.sh
 RUN echo "export GIT_COMMIT=$(git rev-parse HEAD)" >> /usr/local/bin/go-build-static-k8s.sh
@@ -98,9 +94,7 @@ RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=ve
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
-
-
-FROM build-k8s-codegen AS build-k8s
+FROM build-k8s-codegen as build-k8s
 ARG K3S_ROOT_VERSION=v0.14.1
 
 # ARG TARGETARCH=amd64
@@ -132,10 +126,9 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
 RUN install -s bin/* /usr/local/bin/
 RUN kube-proxy --version
 
-
-FROM bci AS kubernetes
+FROM bci as kubernetes
 RUN zypper update -y && \
     zypper install -y which conntrack-tools kmod timezone awk
-COPY --from=build-k8s-codegen /opt/k3s-root/aux/ /usr/sbin/
-COPY --from=build-k8s-codegen /opt/k3s-root/bin/ /bin/
-COPY --from=build-k8s-codegen /usr/local/bin/ /usr/local/bin/
+COPY --from=build-k8s /opt/k3s-root/aux/ /usr/sbin/
+COPY --from=build-k8s /opt/k3s-root/bin/ /bin/
+COPY --from=build-k8s /usr/local/bin/ /usr/local/bin/
