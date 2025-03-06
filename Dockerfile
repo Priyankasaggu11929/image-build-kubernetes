@@ -47,7 +47,7 @@ RUN set -euo pipefail; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
 
-FROM build:latest as build-k8s-codegen
+FROM build:latest as build-k8s-codegen:latest
 ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
@@ -94,7 +94,7 @@ RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=ve
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
-FROM build-k8s-codegen as build-k8s
+FROM build-k8s-codegen:latest as build-k8s
 ARG K3S_ROOT_VERSION=v0.14.1
 
 # ARG TARGETARCH=amd64
