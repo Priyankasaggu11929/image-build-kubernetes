@@ -92,7 +92,7 @@ RUN echo "export GO_LDFLAGS=\"-linkmode=external \
     -X k8s.io/client-go/pkg/version.gitTreeState=clean \
     -X k8s.io/client-go/pkg/version.buildDate=\${BUILD_DATE} \
     \"" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo ${@}' \
+RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo -buildvcs=false ${@}' \
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
