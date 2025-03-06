@@ -94,7 +94,9 @@ RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=ve
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
-FROM build-k8s-codegen as build-k8s
+# TODO(psaggu): figure out how to fix this multi-stage step later.
+# FROM build-k8s-codegen as build-k8s
+
 ARG K3S_ROOT_VERSION=v0.14.1
 
 # ARG TARGETARCH=amd64
@@ -124,6 +126,6 @@ RUN kube-proxy --version
 FROM bci as kubernetes
 RUN zypper update -y && \
     zypper install -y which conntrack-tools kmod timezone awk
-COPY --from=build-k8s /opt/k3s-root/aux/ /usr/sbin/
-COPY --from=build-k8s /opt/k3s-root/bin/ /bin/
-COPY --from=build-k8s /usr/local/bin/ /usr/local/bin/
+COPY --from=build-k8s-codegen /opt/k3s-root/aux/ /usr/sbin/
+COPY --from=build-k8s-codegen /opt/k3s-root/bin/ /bin/
+COPY --from=build-k8s-codegen /usr/local/bin/ /usr/local/bin/
