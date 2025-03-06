@@ -24,7 +24,7 @@ ARG GO_IMAGE=rancher/image-build-base:latest
 
 
 FROM ${BCI_IMAGE} as bci
-FROM ${GO_IMAGE} as build:v1
+FROM ${GO_IMAGE} as build
 RUN set -euo pipefail; \
     zypper -n install --no-recommends \
     # bash \
@@ -47,7 +47,7 @@ RUN set -euo pipefail; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
 
 
-FROM build:v1 as build-k8s-codegen:v2
+FROM build as build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
@@ -94,7 +94,7 @@ RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=ve
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
-FROM build-k8s-codegen:v2 as build-k8s
+FROM build-k8s-codegen as build-k8s
 ARG K3S_ROOT_VERSION=v0.14.1
 
 # ARG TARGETARCH=amd64
@@ -107,12 +107,7 @@ COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root.tar
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
 RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
 
-RUN echo "do I reach here? YES!"
-
 RUN go-build-static-k8s.sh -o bin/kube-apiserver          ./cmd/kube-apiserver
-
-RUN echo "do I reach here? Double YES!"
-
 RUN go-build-static-k8s.sh -o bin/kube-controller-manager ./cmd/kube-controller-manager
 RUN go-build-static-k8s.sh -o bin/kube-scheduler          ./cmd/kube-scheduler
 RUN go-build-static-k8s.sh -o bin/kube-proxy              ./cmd/kube-proxy
