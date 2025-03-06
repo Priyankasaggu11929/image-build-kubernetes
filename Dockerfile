@@ -100,7 +100,7 @@ RUN chmod -v +x /usr/local/bin/go-*.sh
 
 
 
-#FROM build-k8s-codegen AS build-k8s
+FROM build-k8s-codegen AS build-k8s
 ARG K3S_ROOT_VERSION=v0.14.1
 
 # ARG TARGETARCH=amd64
