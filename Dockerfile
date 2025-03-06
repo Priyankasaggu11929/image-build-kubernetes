@@ -19,7 +19,7 @@
 #!BuildTag: rancher/image-build-kubernetes:latest
 #!BuildName: image-build-kubernetes
 
-ARG BCI_IMAGE=registry.suse.com/bci/bci-base:15.5
+ARG BCI_IMAGE=registry.suse.com/bci/bci-base:15.6
 ARG GO_IMAGE=rancher/image-build-base:latest
 
 
@@ -122,9 +122,7 @@ RUN echo "do I reach here? Double YES!"
 RUN go-build-static-k8s.sh -o bin/kube-controller-manager ./cmd/kube-controller-manager
 RUN go-build-static-k8s.sh -o bin/kube-scheduler          ./cmd/kube-scheduler
 RUN go-build-static-k8s.sh -o bin/kube-proxy              ./cmd/kube-proxy
-
-# RUN go-build-static-k8s.sh -o bin/kubeadm                 ./cmd/kubeadm
-
+RUN go-build-static-k8s.sh -o bin/kubeadm                 ./cmd/kubeadm
 RUN go-build-static-k8s.sh -o bin/kubectl                 ./cmd/kubectl
 RUN go-build-static-k8s.sh -o bin/kubelet                 ./cmd/kubelet
 RUN go-assert-static.sh bin/*
