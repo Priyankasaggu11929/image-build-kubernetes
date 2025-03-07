@@ -44,9 +44,10 @@ RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 # COPY kubernetes-1.32.0.tar.gz .
 COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
+RUN git config --global --add safe.directory ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
-RUN git config --global --add safe.directory
+
 
 # RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
 
