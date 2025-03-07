@@ -45,6 +45,8 @@ COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
 
+RUN git config --global --add safe.directory
+
 # RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
 
 # force code generation
@@ -75,7 +77,8 @@ RUN echo "export GO_LDFLAGS=\"-linkmode=external \
     -X k8s.io/client-go/pkg/version.gitTreeState=clean \
     -X k8s.io/client-go/pkg/version.buildDate=\${BUILD_DATE} \
     \"" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo -buildvcs=false ${@}' \
+# RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo -buildvcs=false ${@}' \
+RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo ${@}' \
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
