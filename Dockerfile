@@ -8,6 +8,7 @@ ARG BCI_IMAGE=registry.suse.com/bci/bci-base:15.6
 ARG GO_IMAGE=rancher/image-build-base:latest
 
 
+
 FROM ${BCI_IMAGE} as bci
 FROM ${GO_IMAGE} as build
 RUN set -euo pipefail; \
