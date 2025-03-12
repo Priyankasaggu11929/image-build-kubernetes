@@ -17,8 +17,10 @@ RUN set -euo pipefail; \
     binutils \
     # binutils-gold (available in leap, but conflicts with binutils, will check if really needed, then add) \ 
     # libc6-compat (this package as I learnt, is to provide the necessary runtime libraries to make glibc-dependent programs work on Alpine, so might not be needed on sle based images?) \
-    glibc \
-    glibc-devel-static \
+    #glibc \
+    #glibc-devel-static \
+    musl-gcc \
+    musl-libc-static \
     #curl \
     #file \
     #git \
@@ -45,7 +47,6 @@ RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
 # RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
-
 
 
 # RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
@@ -110,6 +111,10 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     fi
 RUN install -s bin/* /usr/local/bin/
 RUN kube-proxy --version
+
+RUN file bin/kube-apiserver
+
+
 
 FROM bci as kubernetes
 RUN zypper update -y && \
