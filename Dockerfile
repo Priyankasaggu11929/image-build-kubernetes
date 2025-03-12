@@ -37,6 +37,8 @@ RUN set -euo pipefail; \
 
 FROM build as build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
+ENV C_INCLUDE_PATH="/usr/x86_64-linux-musl/include/:/usr/include/"
+ENV CC="musl-gcc"
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
 RUN chmod +x /semver-parse.sh
