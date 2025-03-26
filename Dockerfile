@@ -102,9 +102,9 @@ COPY k3s-root-arm64.tar /opt/k3s-root/k3s-root-arm64.tar
 
 RUN mkdir -p /opt/xtables/ && \
     if [ "$(uname -m)" == "x86_64" ]; then \
-        cp /opt/k3s-root/k3s-root-amd64.tar /opt/xtables/k3s-root-xtables.tar; \
+        cp /opt/k3s-root/k3s-root-amd64.tar /opt/xtables/k3s-root.tar; \
     elif [ "$(uname -m)" == "aarch64" ]; then \
-        cp /opt/k3s-root/k3s-root-arm64.tar /opt/xtables/k3s-root-xtables.tar; \
+        cp /opt/k3s-root/k3s-root-arm64.tar /opt/xtables/k3s-root.tar; \
     fi; \
     tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'; \
     tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset';
