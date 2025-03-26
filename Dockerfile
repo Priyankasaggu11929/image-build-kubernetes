@@ -90,15 +90,28 @@ RUN chmod -v +x /usr/local/bin/go-*.sh
 
 ARG K3S_ROOT_VERSION=v0.14.1
 
+
 # ARG TARGETARCH=amd64
 RUN if [ "$(uname -m)" == "x86_64" ]; then export TARGETARCH="amd64"; elif [ "$(uname -m)" == "aarch64" ]; then export TARGETARCH="arm64"; fi
 
 #!RemoteAssetUrl: https://github.com/k3s-io/k3s-root/releases/download/v0.14.1/k3s-root-amd64.tar
-COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root.tar
+COPY k3s-root-amd64.tar /opt/k3s-root/k3s-root-amd64.tar
+
+#!RemoteAssetUrl: https://github.com/k3s-io/k3s-root/releases/download/v0.14.1/k3s-root-arm64.tar
+COPY k3s-root-arm64.tar /opt/k3s-root/k3s-root-arm64.tar
+
+RUN mkdir -p /opt/xtables/ && \
+    if [ "$(uname -m)" == "x86_64" ]; then \
+        cp /opt/k3s-root/k3s-root-amd64.tar /opt/xtables/k3s-root-xtables.tar; \
+    elif [ "$(uname -m)" == "aarch64" ]; then \
+        cp /opt/k3s-root/k3s-root-arm64.tar /opt/xtables/k3s-root-xtables.tar; \
+    fi; \
+    tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'; \
+    tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset';
 
 # RUN curl --output-dir  /opt/k3s-root/k3s-root.tar -O -L https://github.com/k3s-io/k3s-root/releases/download/${K3S_ROOT_VERSION}/k3s-root-${TARGETARCH}.tar
-RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
-RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
+# RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root --wildcards --strip-components=2 './bin/aux/*tables*' './bin/aux/nft'
+# RUN tar xvf /opt/k3s-root/k3s-root.tar -C /opt/k3s-root './bin/ipset'
 
 RUN go-build-static-k8s.sh -o bin/kube-apiserver          ./cmd/kube-apiserver
 RUN go-build-static-k8s.sh -o bin/kube-controller-manager ./cmd/kube-controller-manager
