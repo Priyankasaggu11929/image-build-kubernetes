@@ -1,35 +1,26 @@
 #!UseOBSRepositories
 
-#!BuildTag: rancher/image-build-kubernetes:v1.32.2
-#!BuildTag: rancher/image-build-kubernetes:latest
-#!BuildName: image-build-kubernetes
+#!BuildTag: rancher/hardened-kubernetes:v1.32.2
+#!BuildTag: rancher/hardened-kubernetes:latest
+#!BuildName: hardened-kubernetes
+
+# INFO: image-build-base:latest provides the following:
+# - required packages (make, musl-gcc, musl-libc-static, etc)
+# - set CC, and C_INCLUDE_PATH evironment variables, to enable building with musl libc
+
 
 ARG BCI_IMAGE=registry.suse.com/bci/bci-base:15.6
 ARG GO_IMAGE=rancher/image-build-base:latest
-
-
 
 FROM ${BCI_IMAGE} as bci
 FROM ${GO_IMAGE} as build
 RUN set -euo pipefail; \
     zypper -n install --no-recommends \
-    # bash \
     binutils \
     # binutils-gold (available in leap, but conflicts with binutils, will check if really needed, then add) \ 
     # libc6-compat (this package as I learnt, is to provide the necessary runtime libraries to make glibc-dependent programs work on Alpine, so might not be needed on sle based images?) \
-    #glibc \
-    #glibc-devel-static \
-    musl-gcc \
-    musl-libc-static \
-    #curl \
-    #file \
-    #git \
     libseccomp-devel \
-    #rsync \
     tar \
-    make \
-    gcc \
-    # py-pip  \
     python3-pip; \
     zypper -n clean; \
     rm -rf {/target,}/var/log/{alternatives.log,lastlog,tallylog,zypper.log,zypp/history,YaST2}
@@ -37,21 +28,15 @@ RUN set -euo pipefail; \
 
 FROM build as build-k8s-codegen
 ARG TAG=v1.32.2-rke2r1-build20250213
-ENV C_INCLUDE_PATH="/usr/x86_64-linux-musl/include/:/usr/include/"
-ENV CC="musl-gcc"
 
 COPY ./scripts/semver-parse.sh /semver-parse.sh
 RUN chmod +x /semver-parse.sh
 
 RUN echo $(/semver-parse.sh ${TAG} all) && mkdir -p ${GOPATH}/src/kubernetes
 
-# COPY kubernetes-1.32.0.tar.gz .
+
 COPY kubernetes-1.32.0 ${GOPATH}/src/kubernetes
-# RUN tar -xvzf kubernetes-1.32.0.tar.gz --strip-components=1 -C ${GOPATH}/src/kubernetes
 WORKDIR ${GOPATH}/src/kubernetes
-
-
-# RUN pwd && ls -la && git rev-parse HEAD && git branch && git branch -r && git tag --list
 
 # force code generation
 
@@ -81,7 +66,7 @@ RUN echo "export GO_LDFLAGS=\"-linkmode=external \
     -X k8s.io/client-go/pkg/version.gitTreeState=clean \
     -X k8s.io/client-go/pkg/version.buildDate=\${BUILD_DATE} \
     \"" >> /usr/local/bin/go-build-static-k8s.sh
-RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -mod=vendor -tags=selinux,osusergo,netgo -buildvcs=false ${@}' \
+RUN echo 'go-build-static.sh -gcflags=-trimpath=${GOPATH}/src/kubernetes -tags=selinux,osusergo,netgo ${@}' \
     >> /usr/local/bin/go-build-static-k8s.sh
 RUN chmod -v +x /usr/local/bin/go-*.sh
 
@@ -128,7 +113,6 @@ RUN install -s bin/* /usr/local/bin/
 RUN kube-proxy --version
 
 RUN file bin/kube-apiserver
-
 
 
 FROM bci as kubernetes
